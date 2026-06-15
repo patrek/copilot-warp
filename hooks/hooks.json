@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "hooks": {
+    "notification": [
+      {
+        "type": "command",
+        "bash": "__INSTALL_DIR__/scripts/on-notification.sh",
+        "timeoutSec": 5
+      }
+    ]
+  }
+}
