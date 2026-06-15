@@ -53,34 +53,41 @@ reserves stdout for control JSON, so the sequence is written directly to
 
 ## Install
 
+This is a [Copilot CLI plugin](https://docs.github.com/en/copilot/concepts/agents/copilot-cli/about-cli-plugins).
+Install it from a local clone:
+
 ```bash
 git clone <this-repo> copilot-code-warp
-cd copilot-code-warp
-./install.sh
+copilot plugin install ./copilot-code-warp
 ```
 
-This writes `~/.copilot/hooks/warp.json` pointing at the repo's scripts. Restart
-your Copilot CLI session **inside Warp** to activate it.
+…or directly from GitHub once published:
 
-To install for a single repository instead, copy `hooks/hooks.json` (with
-`__INSTALL_DIR__` replaced by an absolute path) into that repo's
-`.github/hooks/` directory.
+```bash
+copilot plugin install OWNER/copilot-code-warp
+```
+
+Verify it registered, then restart your Copilot CLI session **inside Warp**:
+
+```bash
+copilot plugin list   # shows "warp-notifications"
+```
 
 ## Uninstall
 
 ```bash
-rm ~/.copilot/hooks/warp.json
+copilot plugin uninstall warp-notifications
 ```
 
 ## Layout
 
 ```
-hooks/hooks.json              Copilot hook config template (__INSTALL_DIR__ placeholder)
+plugin.json                   Copilot plugin manifest (points hooks -> hooks.json)
+hooks.json                    notification hook registration (relative script path)
 scripts/on-notification.sh    notification hook entry point; maps types -> Warp events
 scripts/build-payload.sh      builds the warp://cli-agent JSON payload
 scripts/warp-notify.sh        emits the OSC 777 sequence to /dev/tty
 scripts/should-use-structured.sh  gates on Warp build support
-install.sh                    installs into ~/.copilot/hooks/
 ```
 
 ## Credit

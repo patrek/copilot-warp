@@ -4,7 +4,7 @@
     "notification": [
       {
         "type": "command",
-        "bash": "__INSTALL_DIR__/scripts/on-notification.sh",
+        "bash": "./scripts/on-notification.sh",
         "timeoutSec": 5
       }
     ]

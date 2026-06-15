@@ -1,0 +1,11 @@
+{
+  "name": "warp-notifications",
+  "description": "Native Warp terminal notifications for GitHub Copilot CLI via the warp://cli-agent protocol.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Patrick Turcotte"
+  },
+  "license": "MIT",
+  "keywords": ["warp", "notifications", "terminal", "hooks"],
+  "hooks": "hooks.json"
+}
