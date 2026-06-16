@@ -56,14 +56,8 @@ file descriptors for a `/dev/pts/*` target — and writes the sequence there.
 ## Install
 
 This is a [Copilot CLI plugin](https://docs.github.com/en/copilot/concepts/agents/copilot-cli/about-cli-plugins).
-Install it from a local clone:
 
-```bash
-git clone <this-repo> copilot-warp
-copilot plugin install ./copilot-warp
-```
-
-…or directly from GitHub once published:
+Install it directly from GitHub:
 
 ```bash
 copilot plugin install patrek/copilot-warp
@@ -72,6 +66,25 @@ copilot plugin install patrek/copilot-warp
 Verify it registered, then restart your Copilot CLI session **inside Warp**:
 
 ```bash
+copilot plugin list   # shows "warp-notifications"
+```
+
+## Development
+
+To hack on the plugin or contribute, clone the repo and install from your local
+working copy:
+
+```bash
+git clone https://github.com/patrek/copilot-warp.git
+copilot plugin install ./copilot-warp
+```
+
+After editing the scripts, reinstall to pick up your changes and restart your
+Copilot CLI session inside Warp:
+
+```bash
+copilot plugin uninstall warp-notifications
+copilot plugin install ./copilot-warp
 copilot plugin list   # shows "warp-notifications"
 ```
 
