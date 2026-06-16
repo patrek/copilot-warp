@@ -66,7 +66,7 @@ copilot plugin install ./copilot-warp
 …or directly from GitHub once published:
 
 ```bash
-copilot plugin install OWNER/copilot-warp
+copilot plugin install patrek/copilot-warp
 ```
 
 Verify it registered, then restart your Copilot CLI session **inside Warp**:
