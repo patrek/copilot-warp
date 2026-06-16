@@ -30,20 +30,30 @@ INPUT=$(cat)
 
 NOTIF_TYPE=$(echo "$INPUT" | jq -r '.notification_type // "unknown"' 2>/dev/null)
 MSG=$(echo "$INPUT" | jq -r '.message // empty' 2>/dev/null)
-TITLE=$(echo "$INPUT" | jq -r '.title // empty' 2>/dev/null)
 [ -z "$MSG" ] && MSG="Input needed"
 
-# Map Copilot notification types onto Warp cli-agent event names.
+# Map Copilot notification types onto Warp cli-agent events and emit the fields
+# Warp renders for each event. (The `stop` event displays `query`/`response`;
+# the other events display `summary`.)
 case "$NOTIF_TYPE" in
-    agent_completed)                         EVENT="stop" ;;
-    agent_idle|elicitation_dialog)           EVENT="idle_prompt" ;;
-    permission_prompt)                       EVENT="permission_request" ;;
-    shell_completed|shell_detached_completed) EVENT="post_tool_use" ;;
-    *)                                       EVENT="$NOTIF_TYPE" ;;
+    agent_completed)
+        BODY=$(build_payload "$INPUT" "stop" \
+            --arg query "$MSG" \
+            --arg response "$MSG" \
+            --arg transcript_path "")
+        ;;
+    agent_idle|elicitation_dialog)
+        BODY=$(build_payload "$INPUT" "idle_prompt" --arg summary "$MSG")
+        ;;
+    permission_prompt)
+        BODY=$(build_payload "$INPUT" "permission_request" --arg summary "$MSG")
+        ;;
+    shell_completed|shell_detached_completed)
+        BODY=$(build_payload "$INPUT" "post_tool_use" --arg summary "$MSG")
+        ;;
+    *)
+        BODY=$(build_payload "$INPUT" "$NOTIF_TYPE" --arg summary "$MSG")
+        ;;
 esac
-
-BODY=$(build_payload "$INPUT" "$EVENT" \
-    --arg summary "$MSG" \
-    --arg title "$TITLE")
 
 "$SCRIPT_DIR/warp-notify.sh" "warp://cli-agent" "$BODY"

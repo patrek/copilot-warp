@@ -1,4 +1,4 @@
-# copilot-code-warp
+# copilot-warp
 
 Native [Warp](https://www.warp.dev/) notifications for the **GitHub Copilot CLI** — the
 Copilot equivalent of Warp's official [`claude-code-warp`](https://github.com/warpdotdev/claude-code-warp)
@@ -25,13 +25,15 @@ fire shell commands at lifecycle points. This integration registers a single
 2. Confirms the running Warp build advertises structured-notification support
    (`WARP_CLI_AGENT_PROTOCOL_VERSION` / `WARP_CLIENT_VERSION`).
 3. Builds a structured JSON payload tagged `agent: "copilot"`.
-4. Emits an **OSC 777** escape sequence to the controlling terminal:
+4. Emits an **OSC 777** escape sequence to the agent's terminal:
    `\033]777;notify;warp://cli-agent;<json>\007`. Warp parses `warp://cli-agent`
    and drives the notification UI.
 
 Unlike Claude Code, Copilot CLI has no `terminalSequence` hook-output field and
-reserves stdout for control JSON, so the sequence is written directly to
-`/dev/tty`.
+reserves stdout for control JSON. Worse, it runs notification hooks **without a
+controlling terminal** (`/dev/tty` is unavailable), so the script discovers the
+agent's PTY by walking up the process tree — inspecting each ancestor's stdio
+file descriptors for a `/dev/pts/*` target — and writes the sequence there.
 
 ### Event mapping
 
@@ -57,14 +59,14 @@ This is a [Copilot CLI plugin](https://docs.github.com/en/copilot/concepts/agent
 Install it from a local clone:
 
 ```bash
-git clone <this-repo> copilot-code-warp
-copilot plugin install ./copilot-code-warp
+git clone <this-repo> copilot-warp
+copilot plugin install ./copilot-warp
 ```
 
 …or directly from GitHub once published:
 
 ```bash
-copilot plugin install OWNER/copilot-code-warp
+copilot plugin install OWNER/copilot-warp
 ```
 
 Verify it registered, then restart your Copilot CLI session **inside Warp**:
@@ -86,7 +88,7 @@ plugin.json                   Copilot plugin manifest (points hooks -> hooks.jso
 hooks.json                    notification hook registration (relative script path)
 scripts/on-notification.sh    notification hook entry point; maps types -> Warp events
 scripts/build-payload.sh      builds the warp://cli-agent JSON payload
-scripts/warp-notify.sh        emits the OSC 777 sequence to /dev/tty
+scripts/warp-notify.sh        discovers the agent PTY and writes the OSC 777 sequence there
 scripts/should-use-structured.sh  gates on Warp build support
 ```
 
