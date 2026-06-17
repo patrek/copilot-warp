@@ -14,6 +14,31 @@ pulled back when it needs you.
 > protocol via Copilot CLI's hooks system. It depends on Warp environment
 > variables and an undocumented protocol that may change.
 
+> ## ⚠️ Known limitation — does not currently populate Warp's notification box
+>
+> **As of Warp `v0.2026.06` this plugin cannot deliver in-app notifications from
+> an interactive Copilot session, due to limitations on Warp's side.** Two
+> independent constraints apply:
+>
+> 1. **Agent allow-list.** Warp's in-app cli-agent notification box only renders
+>    a fixed set of agent identifiers (`claude` | `gemini` | `codex`); anything
+>    else is dropped as `unknown`. The plugin works around this by masquerading as
+>    `codex` (configurable via `COPILOT_WARP_AGENT_ID`).
+> 2. **Alt-screen TUI + no Copilot plugin manager (the blocker).** Warp renders
+>    the box via its terminal block parser, which is active for *normal-screen*
+>    panes, or for *alt-screen* panes where Warp has a per-agent plugin manager
+>    (`claude.rs` / `codex.rs` / `gemini.rs` — that is how `claude-code-warp`
+>    works in Claude's TUI). Interactive Copilot CLI runs as an **alt-screen
+>    TUI** and Warp ships **no `copilot` plugin manager**, so the OSC the hook
+>    writes into Copilot's own pane is silently ignored.
+>
+> The hook still fires correctly and writes a valid payload — verified end to end
+> — and the same payload **does** render when delivered to a normal-screen pane.
+> But until Warp adds native Copilot recognition (a `copilot` plugin manager) or
+> renders cli-agent OSC in alt-screen panes, the in-app box will stay empty from a
+> live Copilot session. (Desktop toasts via `notify-send`/DBus still work as an
+> out-of-band fallback.) See `STATUS_REPORT.md` for the full investigation.
+
 ## How it works
 
 Copilot CLI [hooks](https://docs.github.com/en/copilot/reference/hooks-reference)
