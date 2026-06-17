@@ -24,7 +24,11 @@ fire shell commands at lifecycle points. This integration registers a single
    `sessionId`, `cwd`).
 2. Confirms the running Warp build advertises structured-notification support
    (`WARP_CLI_AGENT_PROTOCOL_VERSION` / `WARP_CLIENT_VERSION`).
-3. Builds a structured JSON payload tagged `agent: "copilot"`.
+3. Builds a structured JSON payload tagged with a Warp-recognized agent id.
+   Warp's in-app cli-agent notification box only renders a fixed allow-list of
+   agent identifiers (`claude` | `gemini` | `codex`); any other value (including
+   `copilot`) is dropped as `unknown`. The payload therefore defaults to `codex`
+   and is overridable via the `COPILOT_WARP_AGENT_ID` env var.
 4. Emits an **OSC 777** escape sequence to the agent's terminal:
    `\033]777;notify;warp://cli-agent;<json>\007`. Warp parses `warp://cli-agent`
    and drives the notification UI.

@@ -35,7 +35,10 @@ The four scripts under `scripts/` form a simple pipeline:
 - **`warp-notify.sh` re-checks `should_use_structured` independently** — it is safe to invoke standalone, not only via `on-notification.sh`.
 - **Protocol version negotiation** takes `min(PLUGIN_CURRENT_PROTOCOL_VERSION, WARP_CLI_AGENT_PROTOCOL_VERSION)`. `PLUGIN_CURRENT_PROTOCOL_VERSION` is defined at the top of `build-payload.sh`.
 - **`build_payload` uses `jq -nc … $ARGS.named`** — any extra `--arg`/`--argjson` flags passed by the caller are automatically merged into the top-level JSON object. Use this to add event-specific fields without modifying the function.
-- The `agent` field in every payload is hardcoded to `"copilot"`.
+- The `agent` field in every payload is set to a Warp-recognized id
+  (`${COPILOT_WARP_AGENT_ID:-codex}`; allow-list `claude`|`gemini`|`codex`).
+  Warp's cli-agent notification box drops unrecognized ids (e.g. `copilot`) as
+  `unknown`, so the value is NOT literally `"copilot"`.
 
 ## Incoming Hook Payload Schema
 

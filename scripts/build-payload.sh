@@ -30,6 +30,16 @@ build_payload() {
     local protocol_version
     protocol_version=$(negotiate_protocol_version)
 
+    # Warp's in-app cli-agent notification box only renders a fixed allow-list of
+    # agent identifiers (claude | gemini | codex); any other value deserializes
+    # to "unknown" and is silently dropped. Copilot is not (yet) recognized, so
+    # we masquerade as one of the supported ids. Override with COPILOT_WARP_AGENT_ID.
+    local agent_id="${COPILOT_WARP_AGENT_ID:-codex}"
+    case "$agent_id" in
+        claude|gemini|codex) ;;
+        *) agent_id="codex" ;;
+    esac
+
     local session_id cwd project
     session_id=$(echo "$input" | jq -r '.sessionId // .session_id // empty' 2>/dev/null)
     cwd=$(echo "$input" | jq -r '.cwd // empty' 2>/dev/null)
@@ -38,7 +48,7 @@ build_payload() {
 
     jq -nc \
         --argjson v "$protocol_version" \
-        --arg agent "copilot" \
+        --arg agent "$agent_id" \
         --arg event "$event" \
         --arg session_id "$session_id" \
         --arg cwd "$cwd" \
